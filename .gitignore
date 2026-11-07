@@ -1,0 +1,50 @@
+.env
+.env.*
+!.env.example
+*.db
+*.db-shm
+*.db-wal
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+node_modules/
+.coverage
+htmlcov/
+*.log
+.DS_Store
+*.sqlite3
+*.local
+backups/
+
+# v1.4 optional modern frontend build (generated only after a verified npm install)
+frontend/node_modules/
+frontend/public/modern/
+
+# Local databases and backups
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.dump
+*.bak
+*.backup
+*.zip
+
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_ed25519*
+*credentials*.json
+
+# Local development
+.venv/
+venv/
+node_modules/
+__pycache__/
+.pytest_cache/

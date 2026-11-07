@@ -1,0 +1,29 @@
+OSMANX OMNICHAT v1.2 — local verification summary
+Date: 2026-11-04
+
+PYTHONPATH=backend pytest -q backend/tests
+  86 passed, 7 warnings in 70.19s
+  Exit code 0. No real social accounts used; provider HTTP responses mocked in contract tests.
+
+tsc --project frontend/tsconfig.json
+  Success; compiled frontend/public/app.js.
+
+DATABASE_URL=sqlite:////mnt/data/omnichat_v12/schema-v12.db PYTHONPATH=backend alembic -c backend/alembic.ini upgrade head
+  Success.
+DATABASE_URL=sqlite:////mnt/data/omnichat_v12/schema-v12.db PYTHONPATH=backend alembic -c backend/alembic.ini check
+  No new upgrade operations detected; ORM and migration schema match.
+
+PYTHONPATH=backend python scripts/browser_v12_operations.py
+  V12_UI_OK desktop 1512 px
+  V12_UI_OK mobile 390 px
+  V12_UI_OK phone320 320 px
+  Real React front-end, real FastAPI TestClient through local test transport.
+  Chromium tested before final release version string-only edit; no new UI behavior after it.
+
+Vendored React runtime inspected locally:
+  React.version 16.0.0
+  React upgrade to supported modern release NOT completed due npm EAI_AGAIN.
+
+Not tested:
+  production HTTPS, Docker/PostgreSQL under load, live provider credentials,
+  OAuth app review, independent penetration test, payment processing.

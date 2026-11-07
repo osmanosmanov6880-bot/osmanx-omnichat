@@ -1,0 +1,252 @@
+{
+  "modules": 35,
+  "passed": 296,
+  "all_exit_zero": true,
+  "results": [
+    {
+      "module": "test_bot_channels.py",
+      "passed": 5,
+      "exit_code": 0,
+      "duration_seconds": 5.46,
+      "tail": ".....                                                                    [100%]\n5 passed in 2.07s\n\n"
+    },
+    {
+      "module": "test_claim.py",
+      "passed": 2,
+      "exit_code": 0,
+      "duration_seconds": 4.03,
+      "tail": "..                                                                       [100%]\n2 passed in 0.80s\n\n"
+    },
+    {
+      "module": "test_command_center.py",
+      "passed": 6,
+      "exit_code": 0,
+      "duration_seconds": 6.59,
+      "tail": "......                                                                   [100%]\n6 passed in 3.11s\n\n"
+    },
+    {
+      "module": "test_connection_confidence_v10.py",
+      "passed": 7,
+      "exit_code": 0,
+      "duration_seconds": 5.03,
+      "tail": ".......                                                                  [100%]\n=============================== warnings summary ===============================\nbackend/tests/test_connection_confidence_v10.py::test_whatsapp_out_of_order_receipts_do_not_downgrade_delivery\nbackend/tests/test_connection_confidence_v10.py::test_whatsapp_out_of_order_receipts_do_not_downgrade_delivery\nbackend/tests/test_connection_confidence_v10.py::test_whatsapp_out_of_order_receipts_do_not_downgrade_delivery\nbackend/tests/test_connection_confidence_v10.py::test_whatsapp_out_of_order_receipts_do_not_downgrade_delivery\n  /opt/pyvenv/lib/python3.13/site-packages/httpx/_models.py:408: DeprecationWarning: Use 'content=<...>' to upload raw bytes/text content.\n    headers, stream = encode_request(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n7 passed, 4 warnings in 1.74s\n\n"
+    },
+    {
+      "module": "test_customer_onboarding_v06.py",
+      "passed": 6,
+      "exit_code": 0,
+      "duration_seconds": 5.45,
+      "tail": "......                                                                   [100%]\n6 passed in 2.25s\n\n"
+    },
+    {
+      "module": "test_delivery_safety.py",
+      "passed": 2,
+      "exit_code": 0,
+      "duration_seconds": 3.83,
+      "tail": "..                                                                       [100%]\n2 passed in 0.76s\n\n"
+    },
+    {
+      "module": "test_extended.py",
+      "passed": 6,
+      "exit_code": 0,
+      "duration_seconds": 4.99,
+      "tail": "......                                                                   [100%]\n6 passed in 1.92s\n\n"
+    },
+    {
+      "module": "test_international_ops.py",
+      "passed": 3,
+      "exit_code": 0,
+      "duration_seconds": 4.31,
+      "tail": "...                                                                      [100%]\n3 passed in 1.13s\n\n"
+    },
+    {
+      "module": "test_live_readiness_v08.py",
+      "passed": 10,
+      "exit_code": 0,
+      "duration_seconds": 5.89,
+      "tail": "..........                                                               [100%]\n10 passed in 2.85s\n\n"
+    },
+    {
+      "module": "test_mvp.py",
+      "passed": 9,
+      "exit_code": 0,
+      "duration_seconds": 6.33,
+      "tail": ".........                                                                [100%]\n=============================== warnings summary ===============================\nbackend/tests/test_mvp.py::test_hmac_webhooks_dedup_and_rejects_invalid\nbackend/tests/test_mvp.py::test_hmac_webhooks_dedup_and_rejects_invalid\nbackend/tests/test_mvp.py::test_hmac_webhooks_dedup_and_rejects_invalid\n  /opt/pyvenv/lib/python3.13/site-packages/httpx/_models.py:408: DeprecationWarning: Use 'content=<...>' to upload raw bytes/text content.\n    headers, stream = encode_request(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n9 passed, 3 warnings in 3.21s\n\n"
+    },
+    {
+      "module": "test_preflight_v08.py",
+      "passed": 4,
+      "exit_code": 0,
+      "duration_seconds": 2.91,
+      "tail": "....                                                                     [100%]\n4 passed in 0.02s\n\n"
+    },
+    {
+      "module": "test_quickstart_v09.py",
+      "passed": 5,
+      "exit_code": 0,
+      "duration_seconds": 4.44,
+      "tail": ".....                                                                    [100%]\n5 passed in 1.45s\n\n"
+    },
+    {
+      "module": "test_r20_message_history.py",
+      "passed": 5,
+      "exit_code": 0,
+      "duration_seconds": 5.1,
+      "tail": ".....                                                                    [100%]\n5 passed in 2.02s\n\n"
+    },
+    {
+      "module": "test_r21_collaboration.py",
+      "passed": 6,
+      "exit_code": 0,
+      "duration_seconds": 5.25,
+      "tail": "......                                                                   [100%]\n6 passed in 2.24s\n\n"
+    },
+    {
+      "module": "test_r22_outbox_control.py",
+      "passed": 10,
+      "exit_code": 0,
+      "duration_seconds": 6.41,
+      "tail": "..........                                                               [100%]\n10 passed in 3.42s\n\n"
+    },
+    {
+      "module": "test_r23_crash_recovery.py",
+      "passed": 15,
+      "exit_code": 0,
+      "duration_seconds": 11.59,
+      "tail": "...............                                                          [100%]\n15 passed in 8.10s\n\n"
+    },
+    {
+      "module": "test_r24_provider_receipts.py",
+      "passed": 11,
+      "exit_code": 0,
+      "duration_seconds": 10.49,
+      "tail": "...........                                                              [100%]\n11 passed in 7.41s\n\n"
+    },
+    {
+      "module": "test_r25_emergency_pause.py",
+      "passed": 9,
+      "exit_code": 0,
+      "duration_seconds": 9.71,
+      "tail": ".........                                                                [100%]\n9 passed in 6.55s\n\n"
+    },
+    {
+      "module": "test_r26_global_incident_pause.py",
+      "passed": 12,
+      "exit_code": 0,
+      "duration_seconds": 11.23,
+      "tail": "............                                                             [100%]\n12 passed in 8.00s\n\n"
+    },
+    {
+      "module": "test_r27_sender_slots.py",
+      "passed": 12,
+      "exit_code": 0,
+      "duration_seconds": 11.68,
+      "tail": "............                                                             [100%]\n12 passed in 8.29s\n\n"
+    },
+    {
+      "module": "test_r28_delivery_truth.py",
+      "passed": 12,
+      "exit_code": 0,
+      "duration_seconds": 11.33,
+      "tail": "............                                                             [100%]\n12 passed in 8.07s\n\n"
+    },
+    {
+      "module": "test_r29_inbound_cas.py",
+      "passed": 9,
+      "exit_code": 0,
+      "duration_seconds": 6.82,
+      "tail": ".........                                                                [100%]\n9 passed in 3.44s\n\n"
+    },
+    {
+      "module": "test_r30_first_inbound_claim.py",
+      "passed": 25,
+      "exit_code": 0,
+      "duration_seconds": 11.66,
+      "tail": ".........................                                                [100%]\n25 passed in 8.30s\n\n"
+    },
+    {
+      "module": "test_r31_durable_inbound.py",
+      "passed": 11,
+      "exit_code": 0,
+      "duration_seconds": 7.3,
+      "tail": "...........                                                              [100%]\n11 passed in 3.93s\n\n"
+    },
+    {
+      "module": "test_r32_inbound_operations.py",
+      "passed": 11,
+      "exit_code": 0,
+      "duration_seconds": 7.76,
+      "tail": "...........                                                              [100%]\n11 passed in 4.27s\n\n"
+    },
+    {
+      "module": "test_r33_inbound_fairness.py",
+      "passed": 11,
+      "exit_code": 0,
+      "duration_seconds": 6.87,
+      "tail": "...........                                                              [100%]\n11 passed in 3.65s\n\n"
+    },
+    {
+      "module": "test_r34_inbound_serialization.py",
+      "passed": 12,
+      "exit_code": 0,
+      "duration_seconds": 7.95,
+      "tail": "............                                                             [100%]\n12 passed in 4.49s\n\n"
+    },
+    {
+      "module": "test_recovered_v16_v18.py",
+      "passed": 5,
+      "exit_code": 0,
+      "duration_seconds": 4.77,
+      "tail": ".....                                                                    [100%]\n5 passed in 1.54s\n\n"
+    },
+    {
+      "module": "test_v11_security.py",
+      "passed": 7,
+      "exit_code": 0,
+      "duration_seconds": 6.75,
+      "tail": ".......                                                                  [100%]\n7 passed in 3.51s\n\n"
+    },
+    {
+      "module": "test_v12_resilience.py",
+      "passed": 8,
+      "exit_code": 0,
+      "duration_seconds": 6.12,
+      "tail": "........                                                                 [100%]\n8 passed in 2.86s\n\n"
+    },
+    {
+      "module": "test_v13_scaling.py",
+      "passed": 8,
+      "exit_code": 0,
+      "duration_seconds": 7.41,
+      "tail": "........                                                                 [100%]\n8 passed in 4.08s\n\n"
+    },
+    {
+      "module": "test_v14_worker_health.py",
+      "passed": 7,
+      "exit_code": 0,
+      "duration_seconds": 5.48,
+      "tail": ".......                                                                  [100%]\n7 passed in 2.35s\n\n"
+    },
+    {
+      "module": "test_v15_backup.py",
+      "passed": 10,
+      "exit_code": 0,
+      "duration_seconds": 5.26,
+      "tail": "..........                                                               [100%]\n10 passed in 1.91s\n\n"
+    },
+    {
+      "module": "test_website.py",
+      "passed": 6,
+      "exit_code": 0,
+      "duration_seconds": 6.08,
+      "tail": "......                                                                   [100%]\n6 passed in 2.72s\n\n"
+    },
+    {
+      "module": "test_whatsapp_approved_templates.py",
+      "passed": 9,
+      "exit_code": 0,
+      "duration_seconds": 9.9,
+      "tail": ".........                                                                [100%]\n9 passed in 6.71s\n\n"
+    }
+  ]
+}

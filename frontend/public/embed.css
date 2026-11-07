@@ -1,0 +1,10 @@
+/* Merchant-site-isolated messenger launcher; external stylesheet for strict CSPs. */
+.omnichat-embed{position:fixed!important;z-index:2147483000!important;bottom:20px;right:20px;font:14px system-ui,-apple-system,sans-serif;line-height:1.35}
+.omnichat-embed.omnichat-left{left:20px;right:auto}
+.omnichat-embed>button{display:flex;align-items:center;justify-content:center;width:60px;height:60px;border:1px solid #8aa3ff42;border-radius:20px;background:#273a60;box-shadow:0 18px 50px #03071255;color:#fff;cursor:pointer;appearance:none}
+.omnichat-embed>button:focus-visible{outline:3px solid #86a8ff;outline-offset:3px}
+.omnichat-embed>button svg{width:25px;height:25px;flex:0 0 auto}
+.omnichat-embed>iframe{display:none;position:absolute;bottom:76px;right:0;width:min(380px,calc(100vw - 26px));height:min(600px,calc(100dvh - 110px));border:1px solid #ccd5e51a;border-radius:20px;box-shadow:0 28px 100px #0007;background:#0e1421}
+.omnichat-embed.omnichat-left>iframe{left:0;right:auto}
+.omnichat-embed.open>iframe{display:block}
+@media(max-width:440px){.omnichat-embed{bottom:12px;right:12px}.omnichat-embed.omnichat-left{left:12px}.omnichat-embed>iframe{width:calc(100vw - 24px);height:calc(100dvh - 105px)}}

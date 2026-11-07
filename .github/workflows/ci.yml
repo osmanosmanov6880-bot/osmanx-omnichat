@@ -1,0 +1,276 @@
+name: OMNICHAT verification
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+      - run: pip install -r backend/requirements-dev.txt
+      # Independent pytest groups prevent teardown hangs seen in the large
+      # monolithic process. Every group is required in CI.
+      - name: Core inbox and API regression (65 tests)
+        run: |
+          PYTHONPATH=backend pytest -q \
+            backend/tests/test_bot_channels.py backend/tests/test_claim.py \
+            backend/tests/test_command_center.py backend/tests/test_connection_confidence_v10.py \
+            backend/tests/test_customer_onboarding_v06.py backend/tests/test_delivery_safety.py \
+            backend/tests/test_extended.py backend/tests/test_international_ops.py \
+            backend/tests/test_live_readiness_v08.py backend/tests/test_mvp.py \
+            backend/tests/test_preflight_v08.py backend/tests/test_quickstart_v09.py
+      - name: R20–R23 safety, collaboration and crash recovery (36 tests)
+        run: |
+          PYTHONPATH=backend pytest -q \
+            backend/tests/test_r20_message_history.py backend/tests/test_r21_collaboration.py \
+            backend/tests/test_r22_outbox_control.py backend/tests/test_r23_crash_recovery.py
+      - name: V16–V18 reconstructed compatibility regression (5 tests)
+        run: PYTHONPATH=backend pytest -q backend/tests/test_recovered_v16_v18.py
+      - name: Sessions, SQL limits and worker health (30 tests)
+        run: |
+          PYTHONPATH=backend pytest -q \
+            backend/tests/test_v11_security.py backend/tests/test_v12_resilience.py \
+            backend/tests/test_v13_scaling.py backend/tests/test_v14_worker_health.py
+      - name: R24 WhatsApp delivery callback and cross-tenant regression (11 tests)
+        run: PYTHONPATH=backend pytest -q backend/tests/test_r24_provider_receipts.py
+      - name: R25 manual outbound pause and tenant isolation (9 tests)
+        run: PYTHONPATH=backend pytest -q backend/tests/test_r25_emergency_pause.py
+      - name: R26 tenant-wide incident stop, isolation and recovery (12 tests)
+        run: PYTHONPATH=backend pytest -q backend/tests/test_r26_global_incident_pause.py
+      - name: R27 per-account sender serialization and stale ownership (12 tests)
+        run: PYTHONPATH=backend pytest -q backend/tests/test_r27_sender_slots.py
+      - name: R28 delivery-aware SLA, website/browser receipt and historical migration (12 tests)
+        run: PYTHONPATH=backend pytest -q backend/tests/test_r28_delivery_truth.py
+      - name: R29 atomic inbound counters and read snapshot CAS (9 tests)
+        run: PYTHONPATH=backend pytest -q backend/tests/test_r29_inbound_cas.py
+      - name: R30 first-contact upsert, concurrent duplicates and signed malformed bot input (25 tests)
+        run: PYTHONPATH=backend pytest -q backend/tests/test_r30_first_inbound_claim.py
+      - name: Backup, widget and WhatsApp templates (25 tests)
+        run: |
+          PYTHONPATH=backend pytest -q \
+            backend/tests/test_v15_backup.py backend/tests/test_website.py \
+            backend/tests/test_whatsapp_approved_templates.py
+      - name: R31 encrypted inbound staging, recovery, tenant isolation and retention
+        run: PYTHONPATH=backend pytest -q backend/tests/test_r31_durable_inbound.py
+      - name: R32 incident pause, inbound capacity, triage and bulk recovery
+        run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=backend pytest -q backend/tests/test_r32_inbound_operations.py
+      - name: R33 fair inbound dispatch, irrecoverable disposition and tenant health
+        run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=backend pytest -q backend/tests/test_r33_inbound_fairness.py
+      - name: R34 one-inbound-consumer-per-account and reviewed incident replay
+        run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=backend pytest -q backend/tests/test_r34_inbound_serialization.py
+      - name: R35 tenant fairness and safe expired-claim maintenance (SQLite)
+        run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=backend pytest -q backend/tests/test_r35_tenant_fairness_and_integrity.py
+      - name: R36 tenant-scoped outbound pause, event timeline, privacy export and migration
+        run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=backend pytest -q backend/tests/test_r36_dispatch_safety.py backend/tests/test_r36_migration_and_retention.py
+      - name: Rehearse populated R34 to R35 migration
+        run: PYTHONPATH=backend python scripts/verify_r35_migration.py
+      - name: Rehearse populated R32 to R33 migration
+        run: PYTHONPATH=backend python scripts/verify_r33_migration.py
+      - name: Rehearse populated R33 to R34 migration with unchanged encrypted events
+        run: PYTHONPATH=backend python scripts/verify_r34_migration.py
+      - name: Validate Alembic up migration
+        run: DATABASE_URL=sqlite:///./ci-schema.db alembic -c backend/alembic.ini upgrade head
+      - name: Rehearse populated R31 to R32 migration without data loss
+        run: PYTHONPATH=backend python scripts/verify_r32_migration.py
+      - name: Drift detection between ORM and migration
+        run: DATABASE_URL=sqlite:///./ci-schema.db alembic -c backend/alembic.ini check
+      - name: Verify SQLite backup and safe restore on migrated schema
+        run: |
+          python scripts/backup_safety.py sqlite-backup --database ci-schema.db --directory ci-backups
+          snapshot=$(find ci-backups -maxdepth 1 -name '*.sqlite3' | head -1)
+          test -n "$snapshot"
+          python scripts/backup_safety.py sqlite-verify --file "$snapshot"
+          python scripts/backup_safety.py sqlite-restore-new --file "$snapshot" --target ci-restored.db
+          DATABASE_URL=sqlite:///./ci-restored.db python -c "from app.db import assert_schema_current, engine_for; e=engine_for(); assert assert_schema_current(e); e.dispose()"
+  postgres-migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: omnichat_ci
+          POSTGRES_PASSWORD: only_for_ephemeral_ci
+          POSTGRES_DB: omnichat_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U omnichat_ci -d omnichat_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DATABASE_URL: postgresql+psycopg://omnichat_ci:only_for_ephemeral_ci@localhost:5432/omnichat_ci
+      PYTHONPATH: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r backend/requirements-dev.txt
+      - name: Verify PostgreSQL 16 real schema migration
+        run: alembic -c backend/alembic.ini upgrade head
+      - name: Refuse ORM / migration drift
+        run: alembic -c backend/alembic.ini check
+      - name: Verify production schema revision gate
+        run: python -c "from app.db import assert_schema_current, engine_for; e=engine_for(); assert assert_schema_current(e); e.dispose()"
+      - name: R21 real PostgreSQL multi-operator atomic write race
+        run: python scripts/verify_r21_postgres.py
+      - name: R22 PostgreSQL simultaneous cancel versus worker claim
+        run: python scripts/verify_r22_postgres.py
+      - name: R23 PostgreSQL competing preflight recovery and uncertain quarantine
+        run: python scripts/verify_r23_postgres.py
+      - name: R24 PostgreSQL competing signed receipt updates
+        run: python scripts/verify_r24_postgres.py
+      - name: R25 PostgreSQL emergency pause and two-admin race
+        run: python scripts/verify_r25_postgres.py
+      - name: R26 PostgreSQL global pause / preflight CAS race
+        run: python scripts/verify_r26_postgres.py
+      - name: R27 real PostgreSQL independent-process sender slots and queue
+        run: python scripts/verify_r27_postgres.py
+      - name: R28 PostgreSQL verified response metrics and tenant isolation
+        run: python scripts/verify_r28_postgres.py
+      - name: R29 PostgreSQL parallel ingress and read snapshot CAS
+        run: python scripts/verify_r29_postgres.py
+      - name: R30 PostgreSQL concurrent first-contact creation and retransmission
+        run: python scripts/verify_r30_postgres.py
+      - name: R31 PostgreSQL four independent inbound writers and fenced consumers
+        run: python scripts/verify_r31_postgres.py
+      - name: R32 real PostgreSQL four-process capacity admission and conflicting recovery
+        run: python scripts/verify_r32_postgres.py
+      - name: R33 real PostgreSQL independent workers and tenant fair claim
+        run: python scripts/verify_r33_postgres.py
+      - name: R34 real PostgreSQL four-process serialized inbound channel lease
+        run: python scripts/verify_r34_postgres.py
+      - name: R35 real PostgreSQL two-tenant fair scheduling and 4-process safe maintenance
+        run: python scripts/verify_r35_postgres.py
+      - name: Verify PostgreSQL partial unique indexes and fairness window support
+        run: |
+          python - <<'PYCODE'
+          from sqlalchemy import text
+          from app.db import engine_for
+          engine=engine_for()
+          with engine.begin() as conn:
+              indexes={name for (name,) in conn.execute(text("SELECT indexname FROM pg_indexes WHERE schemaname='public'"))}
+              assert 'ix_outgoing_due' in indexes
+              assert 'uq_live_channel_identity' in indexes
+              assert 'ix_public_rate_bucket_cleanup' in indexes
+              assert 'ix_channel_dispatch_expiry' in indexes
+              assert 'ix_outgoing_account_status' in indexes
+              assert conn.execute(text("SELECT row_number() OVER (PARTITION BY grp ORDER BY seq) FROM (VALUES (1,1),(1,2),(2,1)) AS t(grp,seq) LIMIT 1")).scalar() == 1
+          engine.dispose()
+          PYCODE
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --global typescript@5.8.3
+      - name: Compile actual React frontend
+        run: tsc --project frontend/tsconfig.json
+      - name: Check compiled JS committed
+        run: git diff --exit-code -- frontend/public/app.js
+
+  browser-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+      - name: Install backend and browser test dependencies
+        run: |
+          pip install -r backend/requirements-dev.txt
+          pip install 'playwright>=1.55,<1.70'
+      - name: Install isolated Chromium browser
+        run: python -m playwright install --with-deps chromium
+      - name: Real frontend and widget scripts against in-process FastAPI
+        run: python scripts/browser_world_e2e.py
+      - name: V1.2 operational queue and three viewport sizes
+        run: PYTHONPATH=backend python scripts/browser_v12_operations.py
+      - name: V1.4 background worker diagnostics on all screen sizes
+        run: PYTHONPATH=backend python scripts/browser_v14_worker_health.py
+      - name: Approved WhatsApp template UX (real React and local API)
+        run: PYTHONPATH=backend python scripts/browser_wa_template.py
+      - name: R20 large history, tenant-scope and responsive UI
+        run: PYTHONPATH=backend python scripts/browser_r20_message_history.py
+      - name: R21 operator write conflict UI at desktop and mobile widths
+        run: PYTHONPATH=backend python scripts/browser_r21_team_conflicts.py
+      - name: R22 outbox cancellation and verified retry on desktop/mobile
+        run: PYTHONPATH=backend python scripts/browser_r22_outbox_control.py
+      - name: R23 outbox preparation checkpoint and recovery on desktop/mobile
+        run: PYTHONPATH=backend python scripts/browser_r23_claim_recovery.py
+
+      - name: R24 signed WhatsApp delivery state in real Chromium Inbox
+        run: PYTHONPATH=backend python scripts/browser_r24_provider_receipts.py
+      - name: R25 emergency pause and resume in real Chromium (desktop and mobile)
+        run: PYTHONPATH=backend python scripts/browser_r25_emergency_pause.py
+      - name: R26 entire company incident stop and operator warnings in Chromium
+        run: PYTHONPATH=backend python scripts/browser_r26_company_pause.py
+      - name: R27 live sender serialization indicator in Chromium (1512, 390, 320)
+        run: PYTHONPATH=backend python scripts/browser_r27_sender_slots.py
+      - name: R28 truthful delivery-aware analytics and SLA on desktop and mobile
+        run: PYTHONPATH=backend python scripts/browser_r28_delivery_truth.py
+      - name: R29 unread race and consistent UI on desktop and mobile
+        run: PYTHONPATH=backend python scripts/browser_r29_unread_race.py
+      - name: R30 two simultaneous first messages open as one chat in Chromium
+        run: PYTHONPATH=backend python scripts/browser_r30_first_contact.py
+      - name: R31 incoming recovery UI on desktop, 390 and 320 pixels
+        run: PYTHONPATH=backend python scripts/browser_r31_inbound_recovery.py
+      - name: R32 inbound incident controls and signed durable ingress on three viewports
+        run: PYTHONPATH=backend python scripts/browser_r32_inbound_control.py
+      - name: R33 per-channel health and irreversible disposal in real Chromium
+        run: PYTHONPATH=backend python scripts/browser_r33_inbound_fairness.py
+      - name: R34 reviewed bulk recovery and channel diagnostic on 3 viewports
+        run: PYTHONPATH=backend python scripts/browser_r34_reviewed_recovery.py
+      - name: R35 fair inbound maintenance and safe repair in Chromium
+        run: PYTHONPATH=backend python scripts/browser_r35_integrity.py
+      - name: R36 outbound pause, delivery telemetry and privacy-safe browser UI on 3 viewports
+        run: PYTHONPATH=backend python scripts/browser_r36_dispatch.py
+
+  v11-session-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test dependencies
+        run: |
+          pip install -r backend/requirements-dev.txt
+          pip install 'playwright>=1.55,<1.70'
+          python -m playwright install --with-deps chromium
+      - name: Browser session security, all viewport sizes
+        run: PYTHONPATH=backend python scripts/browser_v11_security.py
+
+  modern-frontend-candidate:
+    # npm cannot be downloaded in the offline artifact-builder runtime. CI has
+    # network access and must independently verify the React 19/Vite build.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned modern React dependencies
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+      - name: Validate modern TypeScript
+        working-directory: frontend
+        run: npm run typecheck:modern
+      - name: Bundle React 19 as independent opt-in entry
+        working-directory: frontend
+        run: npm run build:modern
+      - name: Check built index and JS assets
+        run: |
+          test -s frontend/public/modern/index.html
+          find frontend/public/modern -name '*.js' | grep -q '.'

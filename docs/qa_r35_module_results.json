@@ -1,0 +1,189 @@
+{
+  "release": "R35",
+  "modules": 36,
+  "passed": 305,
+  "failures": 0,
+  "runs": [
+    {
+      "module": "test_bot_channels.py",
+      "passed": 5,
+      "exit_code": 0
+    },
+    {
+      "module": "test_claim.py",
+      "passed": 2,
+      "exit_code": 0
+    },
+    {
+      "module": "test_command_center.py",
+      "passed": 6,
+      "exit_code": 0
+    },
+    {
+      "module": "test_connection_confidence_v10.py",
+      "passed": 7,
+      "exit_code": 0
+    },
+    {
+      "module": "test_customer_onboarding_v06.py",
+      "passed": 6,
+      "exit_code": 0
+    },
+    {
+      "module": "test_delivery_safety.py",
+      "passed": 2,
+      "exit_code": 0
+    },
+    {
+      "module": "test_extended.py",
+      "passed": 6,
+      "exit_code": 0
+    },
+    {
+      "module": "test_international_ops.py",
+      "passed": 3,
+      "exit_code": 0
+    },
+    {
+      "module": "test_live_readiness_v08.py",
+      "passed": 10,
+      "exit_code": 0
+    },
+    {
+      "module": "test_mvp.py",
+      "passed": 9,
+      "exit_code": 0
+    },
+    {
+      "module": "test_preflight_v08.py",
+      "passed": 4,
+      "exit_code": 0
+    },
+    {
+      "module": "test_quickstart_v09.py",
+      "passed": 5,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r20_message_history.py",
+      "passed": 5,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r21_collaboration.py",
+      "passed": 6,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r22_outbox_control.py",
+      "passed": 10,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r23_crash_recovery.py",
+      "passed": 15,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r24_provider_receipts.py",
+      "passed": 11,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r25_emergency_pause.py",
+      "passed": 9,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r26_global_incident_pause.py",
+      "passed": 12,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r27_sender_slots.py",
+      "passed": 12,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r28_delivery_truth.py",
+      "passed": 12,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r29_inbound_cas.py",
+      "passed": 9,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r30_first_inbound_claim.py",
+      "passed": 25,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r31_durable_inbound.py",
+      "passed": 11,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r32_inbound_operations.py",
+      "passed": 11,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r33_inbound_fairness.py",
+      "passed": 11,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r34_inbound_serialization.py",
+      "passed": 12,
+      "exit_code": 0
+    },
+    {
+      "module": "test_r35_tenant_fairness_and_integrity.py",
+      "passed": 9,
+      "exit_code": 0
+    },
+    {
+      "module": "test_recovered_v16_v18.py",
+      "passed": 5,
+      "exit_code": 0
+    },
+    {
+      "module": "test_v11_security.py",
+      "passed": 7,
+      "exit_code": 0
+    },
+    {
+      "module": "test_v12_resilience.py",
+      "passed": 8,
+      "exit_code": 0
+    },
+    {
+      "module": "test_v13_scaling.py",
+      "passed": 8,
+      "exit_code": 0
+    },
+    {
+      "module": "test_v14_worker_health.py",
+      "passed": 7,
+      "exit_code": 0
+    },
+    {
+      "module": "test_v15_backup.py",
+      "passed": 10,
+      "exit_code": 0
+    },
+    {
+      "module": "test_website.py",
+      "passed": 6,
+      "exit_code": 0
+    },
+    {
+      "module": "test_whatsapp_approved_templates.py",
+      "passed": 9,
+      "exit_code": 0
+    }
+  ],
+  "executed_at_utc": "2026-11-05T21:57:00.634950+00:00"
+}

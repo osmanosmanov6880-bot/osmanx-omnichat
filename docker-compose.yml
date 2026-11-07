@@ -1,0 +1,92 @@
+name: osmanx-omnichat
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-omnichat}
+      POSTGRES_USER: ${POSTGRES_USER:-omnichat}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD in your .env file}
+    volumes:
+      - omnichat_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    networks: [internal]
+  app:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-omnichat}:${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-omnichat}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8000}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      ENABLE_API_DOCS: ${ENABLE_API_DOCS:-true}
+      ENABLE_OUTBOX_WORKER: "false"
+      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
+      ENABLE_AVITO_POLLING: ${ENABLE_AVITO_POLLING:-true}
+      INTEGRATION_ENCRYPTION_KEY: ${INTEGRATION_ENCRYPTION_KEY:-}
+      AVITO_CLIENT_ID: ${AVITO_CLIENT_ID:-}
+      AVITO_CLIENT_SECRET: ${AVITO_CLIENT_SECRET:-}
+      INSTAGRAM_APP_ID: ${INSTAGRAM_APP_ID:-}
+      INSTAGRAM_APP_SECRET: ${INSTAGRAM_APP_SECRET:-}
+      META_GRAPH_VERSION: ${META_GRAPH_VERSION:-v25.0}
+      META_WEBHOOK_VERIFY_TOKEN: ${META_WEBHOOK_VERIFY_TOKEN:-}
+      META_APP_SECRET: ${META_APP_SECRET:-}
+      WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:-}
+      INSTAGRAM_APP_SECRET_WEBHOOK: ${INSTAGRAM_APP_SECRET_WEBHOOK:-}
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks: [internal]
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["python", "-m", "app.worker"]
+    restart: unless-stopped
+    healthcheck:
+      disable: true
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-omnichat}:${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-omnichat}
+      ENABLE_AVITO_POLLING: ${ENABLE_AVITO_POLLING:-true}
+      INTEGRATION_ENCRYPTION_KEY: ${INTEGRATION_ENCRYPTION_KEY:-}
+      AVITO_CLIENT_ID: ${AVITO_CLIENT_ID:-}
+      AVITO_CLIENT_SECRET: ${AVITO_CLIENT_SECRET:-}
+      INSTAGRAM_APP_ID: ${INSTAGRAM_APP_ID:-}
+      INSTAGRAM_APP_SECRET: ${INSTAGRAM_APP_SECRET:-}
+      META_GRAPH_VERSION: ${META_GRAPH_VERSION:-v25.0}
+      META_APP_SECRET: ${META_APP_SECRET:-}
+      WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:-}
+    networks: [internal]
+  caddy:
+    image: caddy:2-alpine
+    profiles: [https]
+    restart: unless-stopped
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:?PUBLIC_HOST required}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [app]
+    networks: [internal]
+networks:
+  internal:
+volumes:
+  omnichat_pg:
+  caddy_data:
+  caddy_config:
