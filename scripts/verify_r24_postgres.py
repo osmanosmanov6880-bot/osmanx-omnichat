@@ -47,7 +47,10 @@ try:
             return ok
     with ThreadPoolExecutor(max_workers=2) as pool:
         futures=[pool.submit(put,state) for state in ('read','sent')]
-        assert all(x.result(timeout=25) for x in futures)
+        results=[x.result(timeout=25) for x in futures]
+        if not all(results):
+            print('R24_POSTGRES_INSERT_RESULTS:',results,flush=True)
+        assert all(results), results
     with Session() as session:
         receipt=session.get(ProviderDeliveryReceipt,(channel_id,'wamid.r24-postgres'))
         assert receipt.status=='read'
