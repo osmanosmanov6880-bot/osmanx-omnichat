@@ -18,7 +18,7 @@ os.environ['ENABLE_OUTBOX_WORKER']='false'
 os.environ['DATABASE_URL']='sqlite:////tmp/omnichat-world-browser-e2e.db'
 from app.main import app
 
-OUT=Path(os.environ.get('OMNICHAT_E2E_OUT','/mnt/data'))
+OUT=Path(os.environ.get('OMNICHAT_E2E_OUT',str(ROOT/'qa'/'browser_world')))
 OUT.mkdir(parents=True,exist_ok=True)
 HTML='<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"/></head><body><div id="root"></div></body></html>'
 
