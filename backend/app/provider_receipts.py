@@ -74,7 +74,11 @@ def record_whatsapp_receipt(db, channel: ChannelConnection, message_id: str,
                 excluded.recipient_digest.is_(None),
                 current.recipient_digest==excluded.recipient_digest)),
     )
-    return db.execute(stmt).rowcount == 1
+    # psycopg can report an indeterminate rowcount (-1) for PostgreSQL
+    # INSERT ... ON CONFLICT, even when the upsert succeeded. RETURNING
+    # unambiguously distinguishes an accepted insert/update from a rejected
+    # conflict (recipient or organization mismatch), on PostgreSQL and SQLite.
+    return db.execute(stmt.returning(current.channel_id)).first() is not None
 
 
 def reconcile_whatsapp_receipt(db, channel_id: str, external_message_id: str) -> bool:

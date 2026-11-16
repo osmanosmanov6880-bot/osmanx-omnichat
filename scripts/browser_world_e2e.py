@@ -18,7 +18,7 @@ os.environ['ENABLE_OUTBOX_WORKER']='false'
 os.environ['DATABASE_URL']='sqlite:////tmp/omnichat-world-browser-e2e.db'
 from app.main import app
 
-OUT=Path(os.environ.get('OMNICHAT_E2E_OUT','/mnt/data'))
+OUT=Path(os.environ.get('OMNICHAT_E2E_OUT',str(ROOT/'qa'/'browser_world')))
 OUT.mkdir(parents=True,exist_ok=True)
 HTML='<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"/></head><body><div id="root"></div></body></html>'
 
@@ -66,12 +66,13 @@ with TestClient(app) as backend:
         for filename in ['vendor/react.production.min.js','vendor/react-dom.production.min.js','vendor/react-fragment-polyfill.js','app.js']:
             page.add_script_tag(path=str(public/filename))
         page.locator('.inbox-list').wait_for(timeout=10000)
-        page.locator('.nav-item').filter(has_text='Web Chat').click()
+        page.locator('.quiet-more').click()
+        page.locator('.nav-item').filter(has_text='Чат для сайта').click()
         page.locator('.site-form').wait_for(timeout=12000)
         labels=page.locator('.site-form label')
         labels.nth(0).locator('input').fill('OSMANX Store Live Support')
         labels.nth(1).locator('textarea').fill('http://localhost:3000')
-        page.get_by_role('button',name='Create website channel').click()
+        page.get_by_role('button',name='Создать канал сайта').click()
         page.locator('.site-card').wait_for(timeout=12000)
         snippet=page.locator('.site-embed pre').first.inner_text()
         key=re.search(r'data-omnichat-key="([A-Za-z0-9_-]+)"',snippet).group(1)
@@ -95,9 +96,9 @@ with TestClient(app) as backend:
         widget.locator('#send').click()
         widget.locator('.bubble.mine').first.wait_for(timeout=12000)
 
-        page.locator('.nav-item').filter(has_text='Сообщения').first.click()
-        page.locator('.conversation-card').filter(has_text='Website').first.wait_for(timeout=12000)
-        page.locator('.conversation-card').filter(has_text='Website').first.click()
+        page.locator('.nav-item').filter(has_text='Входящие').first.click()
+        page.locator('.conversation-card').filter(has_text='Сайт').first.wait_for(timeout=12000)
+        page.locator('.conversation-card').filter(has_text='Сайт').first.click()
         page.locator('textarea[aria-label="\u0422\u0435\u043a\u0441\u0442 \u043e\u0442\u0432\u0435\u0442\u0430"]').fill('Your order support is here, welcome!')
         page.locator('button.send-btn').click()
         page.locator('.message-text').filter(has_text='Your order support').wait_for(timeout=12000)
@@ -120,7 +121,8 @@ with TestClient(app) as backend:
             mobile.add_script_tag(path=str(public/filename))
         mobile.locator('.inbox-list').wait_for(timeout=10000)
         mobile.locator('.mobile-menu').click()
-        mobile.locator('.nav-item').filter(has_text='Web Chat').click()
+        mobile.locator('.quiet-more').click()
+        mobile.locator('.nav-item').filter(has_text='Чат для сайта').click()
         mobile.locator('.site-card').wait_for(timeout=10000)
         mobile.wait_for_timeout(400)
         mobile.screenshot(path=str(OUT/'OSMANX_OMNICHAT_WORLD_mobile.png'),full_page=True)
